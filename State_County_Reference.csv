@@ -1,0 +1,358 @@
+﻿State ,County
+01: AL, 073: Jefferson County
+01: AL, 089: Madison County
+01: AL, 097: Mobile County
+01: AL, 101: Montgomery County
+01: AL," 1000: In a County, not specified"
+02: AK, 020: Anchorage Municipality
+02: AK, 090: Fairbanks North Star Borough
+02: AK, 110: Juneau City and Borough
+02: AK, 122: Kenai Peninsula Borough
+02: AK, 170: Matanuska-Susitna Borough
+02: AK," 1001: In a County, not specified"
+04: AZ, 013: Maricopa County
+04: AZ, 019: Pima County
+04: AZ," 1002: In a County, not specified"
+05: AR, 007: Benton County
+05: AR, 119: Pulaski County
+05: AR, 143: Washington County
+05: AR," 1003: In a County, not specified"
+06: CA, 001: Alameda County
+06: CA, 013: Contra Costa County
+06: CA, 019: Fresno County
+06: CA, 029: Kern County
+06: CA, 037: Los Angeles County
+06: CA, 059: Orange County
+06: CA, 065: Riverside County
+06: CA, 067: Sacramento County
+06: CA, 071: San Bernardino County
+06: CA, 073: San Diego County
+06: CA, 075: San Francisco County
+06: CA, 077: San Joaquin County
+06: CA, 081: San Mateo County
+06: CA, 085: Santa Clara County
+06: CA, 097: Sonoma County
+06: CA, 099: Stanislaus County
+06: CA, 107: Tulare County
+06: CA, 111: Ventura County
+06: CA," 1004: In a County, not specified"
+08: CO, 001: Adams County
+08: CO, 005: Arapahoe County
+08: CO, 013: Boulder County
+08: CO, 031: Denver County
+08: CO, 035: Douglas County
+08: CO, 041: El Paso County
+08: CO, 059: Jefferson County
+08: CO, 069: Larimer County
+08: CO," 1005: In a County, not specified"
+09: CT, 001: Fairfield County
+09: CT, 003: Hartford County
+09: CT, 009: New Haven County
+09: CT, 011: New London County
+09: CT," 1006: In a County, not specified"
+10: DE, 001: Kent County
+10: DE, 003: New Castle County
+10: DE, 005: Sussex County
+11: DC, 001: District of Columbia
+12: FL, 001: Alachua County
+12: FL, 009: Brevard County
+12: FL, 011: Broward County
+12: FL, 031: Duval County
+12: FL, 033: Escambia County
+12: FL, 057: Hillsborough County
+12: FL, 069: Lake County
+12: FL, 071: Lee County
+12: FL, 073: Leon County
+12: FL, 083: Marion County
+12: FL, 086: Miami-Dade County
+12: FL, 095: Orange County
+12: FL, 097: Osceola County
+12: FL, 099: Palm Beach County
+12: FL, 101: Pasco County
+12: FL, 103: Pinellas County
+12: FL, 105: Polk County
+12: FL, 115: Sarasota County
+12: FL, 117: Seminole County
+12: FL, 127: Volusia County
+12: FL," 1007: In a County, not specified"
+13: GA, 067: Cobb County
+13: GA, 089: DeKalb County
+13: GA, 121: Fulton County
+13: GA, 135: Gwinnett County
+13: GA," 1008: In a County, not specified"
+15: HI, 001: Hawaii County
+15: HI, 003: Honolulu County
+15: HI, 007: Kauai County
+15: HI, 009: Maui County
+16: ID, 001: Ada County
+16: ID, 019: Bonneville County
+16: ID, 027: Canyon County
+16: ID, 055: Kootenai County
+16: ID, 083: Twin Falls County
+16: ID," 1009: In a County, not specified"
+17: IL, 019: Champaign County
+17: IL, 031: Cook County
+17: IL, 043: DuPage County
+17: IL, 089: Kane County
+17: IL, 097: Lake County
+17: IL, 111: McHenry County
+17: IL, 143: Peoria County
+17: IL, 163: St. Clair County
+17: IL, 197: Will County
+17: IL, 201: Winnebago County
+17: IL," 1010: In a County, not specified"
+18: IN, 003: Allen County
+18: IN, 089: Lake County
+18: IN, 097: Marion County
+18: IN," 1011: In a County, not specified"
+19: IA, 113: Linn County
+19: IA, 153: Polk County
+19: IA, 163: Scott County
+19: IA," 1012: In a County, not specified"
+20: KS, 091: Johnson County
+20: KS, 173: Sedgwick County
+20: KS, 177: Shawnee County
+20: KS, 209: Wyandotte County
+20: KS," 1013: In a County, not specified"
+21: KY, 067: Fayette County
+21: KY, 111: Jefferson County
+21: KY," 1014: In a County, not specified"
+22: LA, 033: East Baton Rouge Parish
+22: LA, 051: Jefferson Parish
+22: LA, 055: Lafayette Parish
+22: LA, 071: Orleans Parish
+22: LA," 1015: In a County, not specified"
+23: ME, 001: Androscoggin County
+23: ME, 003: Aroostook County
+23: ME, 005: Cumberland County
+23: ME, 011: Kennebec County
+23: ME, 019: Penobscot County
+23: ME, 031: York County
+23: ME," 1016: In a County, not specified"
+24: MD, 003: Anne Arundel County
+24: MD, 005: Baltimore County
+24: MD, 027: Howard County
+24: MD, 031: Montgomery County
+24: MD, 033: Prince George's County
+24: MD, 510: Baltimore city
+24: MD," 1017: In a County, not specified"
+25: MA, 005: Bristol County
+25: MA, 009: Essex County
+25: MA, 013: Hampden County
+25: MA, 017: Middlesex County
+25: MA, 021: Norfolk County
+25: MA, 023: Plymouth County
+25: MA, 025: Suffolk County
+25: MA, 027: Worcester County
+25: MA," 1018: In a County, not specified"
+26: MI, 021: Berrien County
+26: MI, 049: Genesee County
+26: MI, 065: Ingham County
+26: MI, 077: Kalamazoo County
+26: MI, 081: Kent County
+26: MI, 099: Macomb County
+26: MI, 115: Monroe County
+26: MI, 121: Muskegon County
+26: MI, 125: Oakland County
+26: MI, 139: Ottawa County
+26: MI, 145: Saginaw County
+26: MI, 161: Washtenaw County
+26: MI, 163: Wayne County
+26: MI," 1019: In a County, not specified"
+27: MN, 003: Anoka County
+27: MN, 037: Dakota County
+27: MN, 053: Hennepin County
+27: MN, 123: Ramsey County
+27: MN," 1020: In a County, not specified"
+28: MS, 033: DeSoto County
+28: MS, 047: Harrison County
+28: MS, 049: Hinds County
+28: MS, 121: Rankin County
+28: MS," 1021: In a County, not specified"
+29: MO, 095: Jackson County
+29: MO, 183: St. Charles County
+29: MO, 189: St. Louis County
+29: MO," 1022: In a County, not specified"
+30: MT, 013: Cascade County
+30: MT, 029: Flathead County
+30: MT, 031: Gallatin County
+30: MT, 049: Lewis and Clark County
+30: MT, 063: Missoula County
+30: MT, 111: Yellowstone County
+30: MT," 1023: In a County, not specified"
+31: NE, 055: Douglas County
+31: NE, 109: Lancaster County
+31: NE, 153: Sarpy County
+31: NE," 1024: In a County, not specified"
+32: NV, 003: Clark County
+32: NV, 031: Washoe County
+32: NV," 1025: In a County, not specified"
+33: NH, 009: Grafton County
+33: NH, 011: Hillsborough County
+33: NH, 013: Merrimack County
+33: NH, 015: Rockingham County
+33: NH, 017: Strafford County
+33: NH," 1026: In a County, not specified"
+34: NJ, 003: Bergen County
+34: NJ, 005: Burlington County
+34: NJ, 007: Camden County
+34: NJ, 013: Essex County
+34: NJ, 017: Hudson County
+34: NJ, 021: Mercer County
+34: NJ, 023: Middlesex County
+34: NJ, 025: Monmouth County
+34: NJ, 027: Morris County
+34: NJ, 029: Ocean County
+34: NJ, 031: Passaic County
+34: NJ, 039: Union County
+34: NJ," 1027: In a County, not specified"
+35: NM, 001: Bernalillo County
+35: NM, 013: Dona Ana County
+35: NM, 043: Sandoval County
+35: NM, 045: San Juan County
+35: NM, 049: Santa Fe County
+35: NM," 1028: In a County, not specified"
+36: NY, 001: Albany County
+36: NY, 005: Bronx County
+36: NY, 027: Dutchess County
+36: NY, 029: Erie County
+36: NY, 047: Kings County
+36: NY, 055: Monroe County
+36: NY, 059: Nassau County
+36: NY, 061: New York County
+36: NY, 065: Oneida County
+36: NY, 067: Onondaga County
+36: NY, 071: Orange County
+36: NY, 081: Queens County
+36: NY, 085: Richmond County
+36: NY, 103: Suffolk County
+36: NY, 119: Westchester County
+36: NY," 1029: In a County, not specified"
+37: NC, 081: Guilford County
+37: NC, 119: Mecklenburg County
+37: NC, 183: Wake County
+37: NC," 1030: In a County, not specified"
+38: ND, 015: Burleigh County
+38: ND, 017: Cass County
+38: ND, 035: Grand Forks County
+38: ND, 101: Ward County
+38: ND," 1031: In a County, not specified"
+39: OH, 017: Butler County
+39: OH, 025: Clermont County
+39: OH, 035: Cuyahoga County
+39: OH, 049: Franklin County
+39: OH, 061: Hamilton County
+39: OH, 085: Lake County
+39: OH, 089: Licking County
+39: OH, 093: Lorain County
+39: OH, 095: Lucas County
+39: OH, 099: Mahoning County
+39: OH, 113: Montgomery County
+39: OH, 151: Stark County
+39: OH, 153: Summit County
+39: OH, 155: Trumbull County
+39: OH, 173: Wood County
+39: OH," 1032: In a County, not specified"
+40: OK, 027: Cleveland County
+40: OK, 109: Oklahoma County
+40: OK, 143: Tulsa County
+40: OK," 1033: In a County, not specified"
+41: OR, 005: Clackamas County
+41: OR, 039: Lane County
+41: OR, 047: Marion County
+41: OR, 051: Multnomah County
+41: OR, 067: Washington County
+41: OR," 1034: In a County, not specified"
+42: PA, 003: Allegheny County
+42: PA, 011: Berks County
+42: PA, 017: Bucks County
+42: PA, 029: Chester County
+42: PA, 041: Cumberland County
+42: PA, 043: Dauphin County
+42: PA, 045: Delaware County
+42: PA, 049: Erie County
+42: PA, 069: Lackawanna County
+42: PA, 071: Lancaster County
+42: PA, 077: Lehigh County
+42: PA, 079: Luzerne County
+42: PA, 091: Montgomery County
+42: PA, 095: Northampton County
+42: PA, 101: Philadelphia County
+42: PA, 129: Westmoreland County
+42: PA, 133: York County
+42: PA," 1035: In a County, not specified"
+44: RI, 003: Kent County
+44: RI, 005: Newport County
+44: RI, 007: Providence County
+44: RI, 009: Washington County
+44: RI," 1036: In a County, not specified"
+45: SC, 019: Charleston County
+45: SC, 045: Greenville County
+45: SC, 051: Horry County
+45: SC, 063: Lexington County
+45: SC, 079: Richland County
+45: SC, 083: Spartanburg County
+45: SC," 1037: In a County, not specified"
+46: SD, 011: Brookings County
+46: SD, 099: Minnehaha County
+46: SD, 103: Pennington County
+46: SD," 1038: In a County, not specified"
+47: TN, 037: Davidson County
+47: TN, 065: Hamilton County
+47: TN, 093: Knox County
+47: TN, 157: Shelby County
+47: TN," 1039: In a County, not specified"
+48: TX, 029: Bexar County
+48: TX, 061: Cameron County
+48: TX, 085: Collin County
+48: TX, 113: Dallas County
+48: TX, 121: Denton County
+48: TX, 141: El Paso County
+48: TX, 157: Fort Bend County
+48: TX, 201: Harris County
+48: TX, 215: Hidalgo County
+48: TX, 439: Tarrant County
+48: TX, 453: Travis County
+48: TX, 491: Williamson County
+48: TX," 1040: In a County, not specified"
+49: UT, 005: Cache County
+49: UT, 011: Davis County
+49: UT, 035: Salt Lake County
+49: UT, 049: Utah County
+49: UT, 057: Weber County
+49: UT," 1041: In a County, not specified"
+50: VT, 003: Bennington County
+50: VT, 007: Chittenden County
+50: VT, 011: Franklin County
+50: VT, 021: Rutland County
+50: VT, 023: Washington County
+50: VT, 025: Windham County
+50: VT, 027: Windsor County
+50: VT," 1042: In a County, not specified"
+51: VA, 041: Chesterfield County
+51: VA, 059: Fairfax County
+51: VA, 107: Loudoun County
+51: VA, 153: Prince William County
+51: VA, 810: Virginia Beach city
+51: VA," 1043: In a County, not specified"
+53: WA, 011: Clark County
+53: WA, 033: King County
+53: WA, 053: Pierce County
+53: WA, 061: Snohomish County
+53: WA, 063: Spokane County
+53: WA," 1044: In a County, not specified"
+54: WV, 003: Berkeley County
+54: WV, 039: Kanawha County
+54: WV, 061: Monongalia County
+54: WV," 1045: In a County, not specified"
+55: WI, 025: Dane County
+55: WI, 079: Milwaukee County
+55: WI, 133: Waukesha County
+55: WI," 1046: In a County, not specified"
+56: WY, 001: Albany County
+56: WY, 005: Campbell County
+56: WY, 013: Fremont County
+56: WY, 021: Laramie County
+56: WY, 025: Natrona County
+56: WY, 037: Sweetwater County
+56: WY," 1047: In a County, not specified"
