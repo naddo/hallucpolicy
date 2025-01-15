@@ -1,0 +1,935 @@
+---
+title: "NSDUH Substance Use Disorders"
+output: 
+  html_document:
+   theme: paper 
+   toc: true
+   toc_float: true
+---
+
+```{r setup, include = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, tidy = TRUE)
+
+library(tidyverse)
+library(gtsummary)
+library(survey)
+```
+
+```{r, eval = FALSE}
+# source("PolicyDataset.R")
+```
+
+```{r}
+# temp <- readRDS("Temp010825.RDA")
+temp <- readRDS("Temp011425.RDA")
+```
+
+Setup Files 
+
+```{r}
+source("PolicyLabels.R")
+```
+
+Load Dataset
+
+```{r message = FALSE, warning=FALSE}
+
+temp2 <- temp %>% haven::zap_labels() 
+
+
+# Adds Simulated Region !!! NOT FOR USE!!! 
+df <- tibble(region_1 = 1:4)
+region_d <- sample_n(df, length(temp2$year), replace = TRUE)
+
+temp2 <- bind_cols(temp2, region_d)
+
+grp_ <- temp2  %>% filter(!catag6=="") %>% filter(!year == 2020) %>% droplevels()
+
+grp1 <- temp2 %>% filter(year > 2020) %>% filter(!catag6 == "")
+grp2 <- temp2 %>% filter(year < 2020) %>% filter(!catag6 == "")
+
+desg_ <-
+  temp2 %>% haven::zap_labels() %>% filter(!catag6=="") %>% droplevels() %>%
+  svydesign(id      = ~verep,
+            strata  = ~vestr_,
+            weights = ~psnwt,
+            data    = . , nest = T)
+
+
+desg_1 <-
+  temp2 %>% haven::zap_labels() %>% filter(!catag6=="") %>% filter(year < 2020) %>%  droplevels()  %>%
+  svydesign(id      = ~verep,
+            strata  = ~vestr_,
+            weights = ~psnwt,
+            data    = . , nest = T)
+
+
+desg_2 <-
+  temp2 %>% haven::zap_labels() %>% filter(!catag6=="") %>% filter(year > 2020) %>% droplevels() %>%
+  svydesign(id      = ~verep,
+            strata  = ~vestr_,
+            weights = ~psnwt,
+            data    = . , nest = T)
+```
+
+```{r}
+# Generate a freq plot by year
+
+generate_plot <- function(data, outcome, title) {
+  total <- data %>% filter(!!sym(outcome) == "Positive" | !!sym(outcome) == 1) %>% nrow()
+  data %>%
+    group_by(!!sym(outcome), year) %>%
+    tally() %>%
+    filter(!!sym(outcome) == "Positive" | !!sym(outcome) == 1 ) %>%
+    droplevels() %>%
+    ggplot(aes(y = n, x = year)) +
+    geom_col(width = 0.5, fill = "steelblue") +
+    theme_bw() +
+    labs(y = "Number of Respondents", x = "Year", title = paste(title, "- Total:", total))
+}
+
+tbl1covariates = c("period_indic", "catag6", "irsex", "race_cat", 
+                   "irmarit", "eduhighcat", "irwrkstat", "income", "rskyfqtes", 
+                   "halluc_p",
+                   "mj_ever", "trq_ever", "inh_ever", "ecstasy_ever", "pcp_ever","sed_ever","coc_ever", "meth_ever", 
+                   "difobther", "difobtlsd")
+
+tbl1_unweighted <- function(data, outcome) {
+  data %>%
+    tbl_summary(
+      include = all_of(tbl1covariates),
+      by = all_of(outcome),
+      percent = "column",
+      label = c( demo_var_list, outcome_list_label, substance_list_label) 
+    ) %>% modify_header(label =  "Variable")
+}
+
+tbl1_weighted <- function(design, outcome) {
+  design %>%
+    tbl_svysummary(
+      include = all_of(tbl1covariates),
+      by = all_of(outcome),
+      percent = "column",
+      label = c(demo_var_list,  outcome_list_label, substance_list_label)
+    ) %>% add_overall() %>% add_p() %>% modify_header(label =  "Variable")
+}
+```
+
+### Substance Reference
+
+- Heroin  
+- Pain Relievers
+- Any Opioid Use
+- Cannabis
+- Ketamine
+- MDMA
+- Methamphetamine
+- Cocaine
+- Stimulants
+- CUPS Hallucinogens
+- Tranquilizers
+- PCP
+- Inhalants
+- Sedatives
+
+```{r}
+substance_list <- c("halluc_p", "lsd_ever", "psilcy_ever", "ecstasy_ever", "ket_ever", "pcp_ever", "mesc_ever", "dmt_ever", "salv_ever","mj_ever", "coc_ever", "meth_ever", "stm_ever", "trq_ever", "inh_ever", "sed_ever", "herflag", "pnranyflag", "any_opi")
+
+reference_summary <- function(data) {
+  data %>%
+  tbl_summary(
+    include = all_of(substance_list),
+    percent = "column",
+    by = "year",
+    label = c(outcome_list_label, substance_list_label)
+  )
+}
+
+grp_ %>% reference_summary()
+
+# grp1 %>% reference_summary()
+# grp2 %>% reference_summary()
+
+```
+
+# Opioid Use Disorder
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "opioid_use_f", "Opioid Use Disorder")
+```
+
+### Demographics by Opioid Use Disorder 
+
+```{r, eval = FALSE}
+# Unweighted for Adult Respondents
+grp_ %>%
+  tbl_summary(include = all_of(tbl1covariates),
+                 by = "opioid_use_f",
+                 percent = "column",
+                 label = demo_var_list)
+
+# Weighted for All Respondents
+
+desg_ %>% 
+  tbl_svysummary(
+      include = all_of(tbl1covariates),
+      by = "opioid_use_f",
+      percent = "column", 
+      label = demo_var_list
+    ) %>% add_overall()
+
+rm(temp, region_d, df)
+
+```
+
+```{r}
+tbl1_unweighted(grp_, "opioid_use_f")
+tbl1_weighted(desg_, "opioid_use_f")
+```
+
+### Models
+
+```{r}
+ud_regress <- function(substance, datsrc) {
+  formula <- as.formula(paste("opioid_use ~", substance))
+#Perform logistic regression using the glm function with binomial family
+ glm(data = datsrc, formula, family = "binomial") %>% 
+   tbl_regression(exponentiate = TRUE,
+                  label = c(demo_var_list, substance_list_label))
+}
+
+ud_regress_a <- function(substance) {
+  formula <- as.formula(paste("opioid_use ~", substance))
+  # Perform Weighted logistic regression using the svyglm function with binomial family
+  svyglm(design = desg_2, 
+        formula = formula, family = "binomial")  %>% 
+    tbl_regression(exponentiate = TRUE,
+                  label = c(demo_var_list, substance_list_label))
+}
+
+ud_regress_b <- function(substance) {
+  formula <- as.formula(paste("opioid_use ~", substance))
+  # Perform Weighted logistic regression using the svyglm function with binomial family
+  svyglm(design = desg_1, 
+        formula = formula, family = "binomial")  %>% 
+    tbl_regression(exponentiate = TRUE,
+                  label = c(demo_var_list, substance_list_label))
+}
+
+# New Regression function that works for all substances
+use_regress_a = function(dependent ,substance) {
+  formula = as.formula(paste(dependent, " ~", substance))
+  svyglm(design = desg_2, formula = formula, family = "binomial") %>% 
+    tbl_regression(exponentiate = TRUE, label = c(demo_var_list, substance_list_label))
+}
+
+ use_regress_b = function(dependent ,substance) {
+  formula = as.formula(paste(dependent, " ~", substance))
+  svyglm(design = desg_1, formula = formula, family = "binomial") %>% 
+    tbl_regression(exponentiate = TRUE, label = c(demo_var_list, substance_list_label))
+}
+```
+
+Model 0 
+
+(Unweighted/Unadjusted Table)
+
+```{r}
+obj0 = lapply(substance_list[1:18], ud_regress, datsrc = grp_ )
+
+
+unadj_temp = bind_rows(lapply(obj0, function(x) x$table_body)) %>% 
+  select(N_event, var_label, N_obs, estimate, ci, p.value)
+
+unadj_temp %>% 
+  select(Var = var_label, Estimate = estimate, CI = ci, p = p.value) %>% 
+  knitr::kable(digits = 3)
+
+rm(obj0, unadj_temp)
+
+```
+
+(Classic Hallucinogens ~ Weighted)
+
+```{r, warning=FALSE}
+# 2015 - 2019
+ud_regress_a("halluc_p")
+
+# 2020 - 2022
+ud_regress_b("halluc_p")
+
+m1vars = "catag6 + race_cat + income + irsex + eduhighcat + mj_ever + stm_ever+ trq_ever + inh_ever + sed_ever + coc_ever + meth_ever"
+m2vars = str_c(m1vars, " + difobtlsd + difobther")
+m3vars = str_c(m1vars, " + factor(region_1)")
+
+m1varsmj = "catag6 + race_cat + income + irsex + eduhighcat + stm_ever+ trq_ever + inh_ever + sed_ever + coc_ever + meth_ever"
+m2varsmj = str_c(m1varsmj, " + difobtlsd + difobther")
+
+```
+
+Model 1
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use* 
+
+```{r, warning = F}
+
+# 2015 - 2019
+ud_regress_a(paste("halluc_p" ," + "  , m1vars))
+
+# 2020 - 2022
+ud_regress_b(paste("halluc_p" ," + "  , m1vars))
+
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+ud_regress_a(paste("halluc_p" ," + "  , m2vars))
+
+# 2020 - 2022
+ud_regress_b(paste("halluc_p" ," + "  , m2vars))
+
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+# 2015 - 2019
+ud_regress_a(paste("halluc_p" ," + "  , m3vars))
+
+# 2020 - 2022
+ud_regress_b(paste("halluc_p" ," + "  , m3vars))
+```
+
+Model 4 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019/2023* 
+
+```{r, eval = FALSE }
+# 2015 - 2019
+ud_regress_a(paste("halluc_p" ," + "  , m1vars, " + " , policy19))
+
+# 2020 - 2022
+ud_regress_b(paste("halluc_p" ," + "  , m1vars, " + ",  policy23))
+```
+
+# Other Past Year Substance Use
+
+## Past Year Cannabis Use
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "mrjyr", "Past Year Cannabis Use")
+```
+
+### Demographics by PY Cannabis Use
+ 
+```{r}
+tbl1_unweighted(grp_, "mrjyr")
+tbl1_weighted(desg_, "mrjyr")
+```
+ 
+### Models
+
+Model 1
+
+```{r}
+use_regress_b("mrjyr", paste("halluc_p", " + ", m1varsmj))
+use_regress_a("mrjyr", paste("halluc_p", " + ",  m1varsmj))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+use_regress_b("mrjyr", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("mrjyr", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("mrjyr", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("mrjyr", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019/2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("mrjyr", paste("halluc_p", " + ", m1varsmj, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("mrjyr", paste("halluc_p", " + ", m1varsmj, " + ", policy23))
+```
+
+
+## Past Year Ketamine Use
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "ketminyr", "Past Year Ketamine Use")
+# generate_plot(temp2, "ket_ever" , "Ketamine Use")
+```
+
+### Demographics by PY Ketamine Use
+
+```{r}
+tbl1_unweighted(grp_, "ketminyr")
+tbl1_weighted(desg_, "ketminyr")
+```
+
+### Models
+
+Model 1
+
+```{r}
+
+use_regress_b("ketminyr", paste("halluc_p", " + ", m1vars))
+use_regress_a("ketminyr", paste("halluc_p", " + ", m1vars))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+use_regress_b("ketminyr", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("ketminyr", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("ketminyr", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("ketminyr", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019/2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("ketminyr", paste("halluc_p", " + ", m1vars, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("ketminyr", paste("halluc_p", " + ", m1vars, " + ", policy23))
+```
+
+## Past Year MDMA Use
+
+```{r}
+generate_plot(temp2, "ecstmoyr", "Past Year MDMA Use")
+```
+
+### Demographics by PY MDMA Use  
+```{r}
+tbl1_unweighted(grp_, "ecstmoyr")
+tbl1_weighted(desg_,"ecstmoyr")
+```
+
+### Models
+
+Model 1
+
+```{r}
+
+use_regress_b("ecstmoyr", paste("halluc_p", " + ", m1vars))
+use_regress_a("ecstmoyr", paste("halluc_p", " + ", m1vars))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+use_regress_b("ecstmoyr", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("ecstmoyr", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav, Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("ecstmoyr", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("ecstmoyr", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav, Lifetime Drug Use + Policy 2019/2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("ecstmoyr", paste("halluc_p", " + ", m1vars, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("ecstmoyr", paste("halluc_p", " + ", m1vars, " + ", policy23))
+```
+
+## Past Year Non Prescribed Stimulant Use
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "py_cocmeth" , "Past Year Non Prescribed Stimulant Use")
+```
+
+### Demographics by PY Non Prescribed Stimulant Use
+```{r}
+tbl1_unweighted(grp_, "py_cocmeth")
+tbl1_weighted(desg_, "py_cocmeth")
+```
+
+### Models
+
+Model 1
+
+```{r}
+use_regress_b("py_cocmeth", paste("halluc_p", " + ", m1vars))
+use_regress_a("py_cocmeth", paste("halluc_p", " + ", m1vars))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+# 2015 - 2019
+use_regress_b("py_cocmeth", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("py_cocmeth", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("py_cocmeth", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("py_cocmeth", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019/2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("py_cocmeth", paste("halluc_p", " + ", m1vars, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("py_cocmeth", paste("halluc_p", " + ", m1vars, " + ", policy23))
+```
+
+
+# Other Past Year Use Disorders
+
+## Alcohol Use Disorder 
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "alc_use_f" , "Past Year Alcohol Use Disorder")
+```
+
+### Demographics by Alcohol Use Disorder
+
+```{r}
+tbl1_unweighted(grp_, "alc_use_f")
+tbl1_weighted(desg_,"alc_use_f")
+```
+
+### Models
+
+Model 1
+
+```{r}
+use_regress_b("alc_use_f", paste("halluc_p", " + ", m1vars))
+use_regress_a("alc_use_f", paste("halluc_p", " + ", m1vars))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+use_regress_b("alc_use_f", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("alc_use_f", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("alc_use_f", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("alc_use_f", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019 /2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("alc_use_f", paste("halluc_p", " + ", m1vars, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("alc_use_f", paste("halluc_p", " + ", m1vars, " + ", policy23))
+```
+
+
+## Non Prescribed Stimulant Use Disorder 
+(Methaphetamine + Cocaine)
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "cocmeth_use_f", "Past Year Non Prescribed Stimulant Use Disorder")
+```
+
+### Demographics by Non Prescribed Stimulant Use Disorder
+(Methaphetamine + Cocaine)
+
+```{r}
+tbl1_unweighted(grp_, "cocmeth_use_f")
+tbl1_weighted(desg_,"cocmeth_use_f")
+```
+
+### Models
+
+Model 1
+
+```{r}
+
+use_regress_b("cocmeth_use_f", paste("halluc_p", " + ", m1vars))
+use_regress_a("cocmeth_use_f", paste("halluc_p", " + ", m1vars))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+use_regress_b("cocmeth_use_f", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("cocmeth_use_f", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("cocmeth_use_f", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("cocmeth_use_f", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019 /2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("cocmeth_use_f", paste("halluc_p", " + ", m1vars, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("cocmeth_use_f", paste("halluc_p", " + ", m1vars, " + ", policy23))
+```
+
+
+## Cannabis Use Disorder 
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "mrj_use_f" , "Past Year Cannabis Use Disorder")
+```
+
+### Demographics by Cannabis Use Disorder
+
+```{r}
+tbl1_unweighted(grp_, "mrj_use_f")
+tbl1_weighted(desg_, "mrj_use_f")
+```
+
+### Models
+
+
+Model 1
+
+```{r}
+
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m1vars))
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m1vars))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019/2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m1vars, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m1vars, " + ", policy23))
+```
+
+
+## Notes
+
+OUD	Past year opioid use disorder 
+  (UDPYOPI and UD5OPIANY) 
+	
+Ketamine
+  Past year use (KETAYRR)
+  
+MDMA
+  Past year use (ECSTMOYR)
+  
+Alcohol
+  Past year AUD (ABODALC and PYUD5ALC)
+  
+Methamphetamine + Cocaine 
+ 	Past year use (COCYR + METHAMYR)
+
+Past year stimulant use disorder 
+	      (ABODCOC + UDPYMTH and PYUD5COC + PYUD5MTH)
+Cannabis:	
+  Past year use (MRJYR)
+	Past year cannabis use disorder (ABODMRJ and PYUD5MRJ)
+
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+grp1 %>% haven::zap_labels() %>%
+  tbl_summary(include = c("opioid_use_f") ,
+                 percent = "column", by = "region_1",
+              label = list(opioid_use_f = "Opioid Use Disorder")) %>%
+                 # add_overall() %>% 
+  modify_header(label =  "Variable") %>% 
+  modify_caption("**Distribution of Outcomes by Region**") %>% 
+  modify_footnote(all_stat_cols() ~ NA)
+
+grp1 %>%
+  tbl_summary(
+    include = c(psilcy_ever,
+                halluc_p, lsd_ever, ecstasy_ever, ket_ever, pcp_ever, mesc_ever, dmt_ever, salv_ever, meth_ever,
+                herflag , pnranyflag, any_opi ),
+    by = "year",
+    percent = "column",
+    label = c( outcome_list_label, substance_list_label)
+      )
+
+grp2 %>%
+  tbl_summary(
+    include = c(psilcy_ever,
+                halluc_p, lsd_ever, ecstasy_ever, ket_ever, pcp_ever, mesc_ever, dmt_ever, salv_ever, meth_ever,
+                herflag , pnranyflag, any_opi ),
+    by = "year",
+    percent = "column",
+    label = c( outcome_list_label, substance_list_label)
+      )
+
+# List of substances to analyze
+substances <- c("halluc_p", "psilcy_ever", 
+                "lsd_ever", "mesc_ever","ecstasy_ever", "peyote_ever", 
+                "mj_ever", "coc_ever", "trq_ever", "pcp_ever", "sed_ever", "stm_ever", "inh_ever", "meth_ever",
+                "dmt_ever" 
+                )
+
+```
+
+Unweighted 
+
+```{r eval=FALSE, include=FALSE}
+grp_  %>% haven::zap_labels() %>%
+  tbl_summary(
+    include= c( 
+    "halluc_ever", 
+    "lsd_ever","psilcy_ever", "mj_ever", "coc_ever", "meth_ever"),
+    by = opioid_use_f,
+    label = c(outcome_list_label, substance_list_label),
+    percent = "column")
+```
+
+```{r, eval = FALSE, message = FALSE, warning = FALSE}
+# Hallucinogens 
+temp2 %>% 
+  tbl_summary(
+    include = c(opioid_use, pain_use, her_use, psilcy_ever, halluc_p, pnranyflag, herflag
+                # , any_opi
+                ),
+    by = "year",
+    percent = "column", 
+    label = outcome_list_label
+    )
+
+temp2 %>%
+  tbl_summary(
+    include = c(psilcy_ever,
+                halluc_p, lsd_ever,  ecstasy_ever, ket_ever, pcp_ever, mesc_ever, dmt_ever,salv_ever),
+    by = "year",
+    percent = "column",
+    label = c( outcome_list_label, substance_list_label)
+      )
+
+temp2 %>%
+  tbl_summary(
+    include = c(mj_ever, coc_ever, stm_ever, trq_ever, inh_ever,sed_ever),
+    by = "year",
+    label = substance_list_label,
+    percent = "column")
+```
+
+```{r, eval = FALSE, message = FALSE, warning = FALSE}
+
+### Weighted Demographics by Classic Psychedelic Use (Adult Opioid Ever Users)
+
+desg3_ %>% 
+     update( 
+        . , 
+        halluc_p = 
+            factor( 
+                halluc_p , 
+                levels = 0:1 , 
+                labels = c("Never Used", "Ever Used")
+            )) %>% 
+  tbl_svysummary(include = 
+                    c("year", "catag6","irsex", "race_cat", "irmarit", "eduhighcat", "irwrkstat", "income", 
+                      "rskyfqtes", "difobther", "difobtlsd",
+                      "opioid_use_f"
+                      # , "any_opi","pnranyflag","herflag"
+                      ),
+                 by = 'halluc_p', 
+                 percent = "column",
+                 label = c(demo_var_list, irhallucrec = "NSDUH Hallucinogen Recency", race_cat = "Race/Ethnicity", 
+                           outcome_list_label)
+                   ) %>% add_overall(last = T) %>% add_p() %>% 
+  modify_header(label =  "Variable") %>% 
+  modify_caption("**Weighted Frequency by Classic Psychedelic Use**")
+
+desg3_ %>% 
+     update( 
+        . , 
+        
+        halluc_p = 
+            factor( 
+                halluc_p , 
+                levels = 0:1 , 
+                labels = c("Never Use", "Ever Used")
+            )) %>% 
+  tbl_svysummary(include = 
+                    c("mj_ever", "trq_ever", "inh_ever", "ecstasy_ever", "pcp_ever", "sed_ever", "coc_ever", "meth_ever"),
+                 by = 'halluc_p', 
+                 percent = "row",
+                 label = c(substance_list_label)
+                   ) %>% 
+  add_overall(last = T) %>% add_p() %>% 
+  modify_header(label =  "Variable") %>% 
+  modify_caption("**Weighted Frequency by Classic Psychedelic Use**") 
+```
