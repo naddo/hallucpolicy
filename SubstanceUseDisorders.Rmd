@@ -354,10 +354,10 @@ Model 2
 ```{r}
 
 # 2015 - 2019
-use_regress_b("mrjyr", paste("halluc_p", " + ", m2vars))
+use_regress_b("mrjyr", paste("halluc_p", " + ", m2varsmj))
 
 # 2020 - 2022
-use_regress_a("mrjyr", paste("halluc_p", " + ", m2vars))
+use_regress_a("mrjyr", paste("halluc_p", " + ", m2varsmj))
 ```
 
 Model 3 
@@ -367,10 +367,10 @@ Model 3
 ```{r, eval = FALSE }
 
 # 2015 - 2019
-use_regress_b("mrjyr", paste("halluc_p", " + ", m3vars))
+use_regress_b("mrjyr", paste("halluc_p", " + ", m3varsmj))
 
 # 2020 - 2022
-use_regress_a("mrjyr", paste("halluc_p", " + ", m3vars))
+use_regress_a("mrjyr", paste("halluc_p", " + ", m3varsmj))
 
 ```
 
@@ -736,8 +736,8 @@ Model 1
 
 ```{r}
 
-use_regress_b("mrj_use_f", paste("halluc_p", " + ", m1vars))
-use_regress_a("mrj_use_f", paste("halluc_p", " + ", m1vars))
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m1varsmj))
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m1varsmj))
 ```
 
 Model 2 
@@ -747,10 +747,10 @@ Model 2
 ```{r}
 
 # 2015 - 2019
-use_regress_b("mrj_use_f", paste("halluc_p", " + ", m2vars))
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m2varsmj))
 
 # 2020 - 2022
-use_regress_a("mrj_use_f", paste("halluc_p", " + ", m2vars))
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m2varsmj))
 ```
 
 Model 3 
@@ -760,10 +760,10 @@ Model 3
 ```{r, eval = FALSE }
 
 # 2015 - 2019
-use_regress_b("mrj_use_f", paste("halluc_p", " + ", m3vars))
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m3varsmj))
 
 # 2020 - 2022
-use_regress_a("mrj_use_f", paste("halluc_p", " + ", m3vars))
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m3varsmj))
 
 ```
 
@@ -774,12 +774,11 @@ Model 4
 ```{r, eval = FALSE }
 
 # 2015 - 2019
-use_regress_b("mrj_use_f", paste("halluc_p", " + ", m1vars, " + ", policy19))
+use_regress_b("mrj_use_f", paste("halluc_p", " + ", m1varsmj, " + ", policy19))
 
 # 2020 - 2022
-use_regress_a("mrj_use_f", paste("halluc_p", " + ", m1vars, " + ", policy23))
+use_regress_a("mrj_use_f", paste("halluc_p", " + ", m1varsmj, " + ", policy23))
 ```
-
 
 ## Notes
 
