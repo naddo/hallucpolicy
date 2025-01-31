@@ -45,7 +45,8 @@ substance_list_label <- list(
   sed_ever = "Ever Use : Sedatives",
   halluc_ever = "CUPS Hallucinogen Ever",
   meth_ever = "Ever Use : Methamphetamines",
-  peyote_ever = "Ever Use : Peyote"
+  peyote_ever = "Ever Use : Peyote",
+  peymesc = "Ever Use: Peyote/Mescaline"
 )
 
 criteria_labels = list(
