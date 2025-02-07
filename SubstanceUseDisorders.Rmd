@@ -20,8 +20,7 @@ library(survey)
 ```
 
 ```{r}
-# temp <- readRDS("Temp010825.RDA")
-temp <- readRDS("Temp011425.RDA")
+temp <- readRDS("Temp020525.RDA")
 ```
 
 Setup Files 
@@ -115,7 +114,7 @@ tbl1_weighted <- function(design, outcome) {
 }
 ```
 
-### Substance Reference
+# Substance Reference
 
 - Heroin  
 - Pain Relievers
@@ -133,7 +132,7 @@ tbl1_weighted <- function(design, outcome) {
 - Sedatives
 
 ```{r}
-substance_list <- c("halluc_p", "lsd_ever", "psilcy_ever", "ecstasy_ever", "ket_ever", "pcp_ever", "mesc_ever", "dmt_ever", "salv_ever","mj_ever", "coc_ever", "meth_ever", "stm_ever", "trq_ever", "inh_ever", "sed_ever", "herflag", "pnranyflag", "any_opi")
+substance_list <- c("halluc_p", "lsd_ever", "psilcy_ever", "ecstasy_ever", "ket_ever", "pcp_ever", "mesc_ever","peyote_ever","dmt_ever", "salv_ever","mj_ever", "coc_ever", "meth_ever", "stm_ever", "trq_ever", "inh_ever", "sed_ever", "herflag", "pnranyflag", "any_opi")
 
 reference_summary <- function(data) {
   data %>%
@@ -181,7 +180,6 @@ desg_ %>%
     ) %>% add_overall()
 
 rm(temp, region_d, df)
-
 ```
 
 ```{r}
@@ -191,7 +189,7 @@ tbl1_weighted(desg_, "opioid_use_f")
 
 ### Models
 
-```{r}
+```{r model_definitions}
 ud_regress <- function(substance, datsrc) {
   formula <- as.formula(paste("opioid_use ~", substance))
 #Perform logistic regression using the glm function with binomial family
@@ -255,10 +253,10 @@ rm(obj0, unadj_temp)
 
 ```{r, warning=FALSE}
 # 2015 - 2019
-ud_regress_a("halluc_p")
+ud_regress_b("halluc_p")
 
 # 2020 - 2022
-ud_regress_b("halluc_p")
+ud_regress_a("halluc_p")
 
 m1vars = "catag6 + race_cat + income + irsex + eduhighcat + mj_ever + stm_ever+ trq_ever + inh_ever + sed_ever + coc_ever + meth_ever"
 m2vars = str_c(m1vars, " + difobtlsd + difobther")
@@ -266,6 +264,8 @@ m3vars = str_c(m1vars, " + factor(region_1)")
 
 m1varsmj = "catag6 + race_cat + income + irsex + eduhighcat + stm_ever+ trq_ever + inh_ever + sed_ever + coc_ever + meth_ever"
 m2varsmj = str_c(m1varsmj, " + difobtlsd + difobther")
+
+psyvars = "psilcy_ever + peymesc + lsd_ever + dmt_ever"
 
 ```
 
@@ -276,11 +276,16 @@ Model 1
 ```{r, warning = F}
 
 # 2015 - 2019
-ud_regress_a(paste("halluc_p" ," + "  , m1vars))
-
-# 2020 - 2022
 ud_regress_b(paste("halluc_p" ," + "  , m1vars))
 
+# 2020 - 2022
+ud_regress_a(paste("halluc_p" ," + "  , m1vars))
+
+# 2015 - 2019
+ud_regress_b(paste(psyvars, " + "  , m1vars))
+
+# 2020 - 2022
+ud_regress_a(paste(psyvars, " + "  , m1vars))
 ```
 
 Model 2 
@@ -290,11 +295,16 @@ Model 2
 ```{r}
 
 # 2015 - 2019
-ud_regress_a(paste("halluc_p" ," + "  , m2vars))
-
-# 2020 - 2022
 ud_regress_b(paste("halluc_p" ," + "  , m2vars))
 
+# 2020 - 2022
+ud_regress_a(paste("halluc_p" ," + "  , m2vars))
+
+# 2015 - 2019
+ud_regress_b(paste(psyvars ," + "  , m2vars))
+
+# 2020 - 2022
+ud_regress_a(paste(psyvars ," + "  , m2vars))
 ```
 
 Model 3 
@@ -303,10 +313,16 @@ Model 3
 
 ```{r, eval = FALSE }
 # 2015 - 2019
-ud_regress_a(paste("halluc_p" ," + "  , m3vars))
+ud_regress_b(paste("halluc_p" ," + "  , m3vars))
 
 # 2020 - 2022
-ud_regress_b(paste("halluc_p" ," + "  , m3vars))
+ud_regress_a(paste("halluc_p" ," + "  , m3vars))
+
+# 2015 - 2019
+ud_regress_b(paste(psyvars ," + "  , m3vars))
+
+# 2020 - 2022
+ud_regress_a(paste(psyvars ," + "  , m3vars))
 ```
 
 Model 4 
@@ -315,10 +331,16 @@ Model 4
 
 ```{r, eval = FALSE }
 # 2015 - 2019
-ud_regress_a(paste("halluc_p" ," + "  , m1vars, " + " , policy19))
+ud_regress_b(paste("halluc_p" ," + "  , m1vars, " + " , policy19))
 
 # 2020 - 2022
-ud_regress_b(paste("halluc_p" ," + "  , m1vars, " + ",  policy23))
+ud_regress_a(paste("halluc_p" ," + "  , m1vars, " + ",  policy23))
+
+# 2015 - 2019
+ud_regress_b(paste(psyvars ," + "  , m1vars, " + " , policy19))
+
+# 2020 - 2022
+ud_regress_a(paste(psyvars ," + "  , m1vars, " + ",  policy23))
 ```
 
 # Other Past Year Substance Use
@@ -339,6 +361,16 @@ tbl1_weighted(desg_, "mrjyr")
 ```
  
 ### Models
+
+(Classic Hallucinogens ~ Weighted)
+
+```{r}
+# 2015 - 2019
+use_regress_b("mrjyr", paste("halluc_p"))
+
+# 2020 - 2022
+use_regress_a("mrjyr", paste("halluc_p"))
+```
 
 Model 1
 
@@ -409,7 +441,6 @@ tbl1_weighted(desg_, "ketminyr")
 Model 1
 
 ```{r}
-
 use_regress_b("ketminyr", paste("halluc_p", " + ", m1vars))
 use_regress_a("ketminyr", paste("halluc_p", " + ", m1vars))
 ```
@@ -419,7 +450,6 @@ Model 2
 *Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
 
 ```{r}
-
 # 2015 - 2019
 use_regress_b("ketminyr", paste("halluc_p", " + ", m2vars))
 
@@ -468,10 +498,21 @@ tbl1_weighted(desg_,"ecstmoyr")
 
 ### Models
 
+
+(Classic Hallucinogens ~ Weighted)
+
+```{r}
+# 2015 - 2019
+use_regress_b("ecstmoyr", paste("halluc_p"))
+
+# 2020 - 2022
+use_regress_a("ecstmoyr", paste("halluc_p"))
+```
+
+
 Model 1
 
 ```{r}
-
 use_regress_b("ecstmoyr", paste("halluc_p", " + ", m1vars))
 use_regress_a("ecstmoyr", paste("halluc_p", " + ", m1vars))
 ```
@@ -531,6 +572,16 @@ tbl1_weighted(desg_, "py_cocmeth")
 ```
 
 ### Models
+
+(Classic Hallucinogens ~ Weighted)
+
+```{r}
+# 2015 - 2019
+use_regress_b("py_cocmeth", paste("halluc_p"))
+# 2020 - 2022
+use_regress_a("py_cocmeth", paste("halluc_p"))
+```
+
 
 Model 1
 
@@ -598,6 +649,16 @@ tbl1_weighted(desg_,"alc_use_f")
 
 ### Models
 
+(Classic Hallucinogens ~ Weighted)
+
+```{r}
+# 2015 - 2019
+use_regress_b("alc_use_f", paste("halluc_p"))
+
+# 2020 - 2022
+use_regress_a("alc_use_f", paste("halluc_p"))
+```
+
 Model 1
 
 ```{r}
@@ -645,6 +706,79 @@ use_regress_b("alc_use_f", paste("halluc_p", " + ", m1vars, " + ", policy19))
 use_regress_a("alc_use_f", paste("halluc_p", " + ", m1vars, " + ", policy23))
 ```
 
+## Binge Alcohol use past 30 days 
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, "binge_drink" , "Past Year Alcohol Use Disorder")
+```
+
+### Demographics by Binge Alcohol use past 30 days 
+
+```{r}
+tbl1_unweighted(grp_, "binge_drink_f")
+tbl1_weighted(desg_,"binge_drink_f")
+```
+
+### Models
+
+(Classic Hallucinogens ~ Weighted)
+
+```{r}
+# 2015 - 2019
+use_regress_b("binge_drink_f", paste("halluc_p"))
+
+# 2020 - 2022
+use_regress_a("binge_drink_f", paste("halluc_p"))
+```
+
+Model 1
+
+```{r}
+use_regress_b("binge_drink_f", paste("halluc_p", " + ", m1vars))
+use_regress_a("binge_drink_f", paste("halluc_p", " + ", m1vars))
+```
+
+Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+```{r}
+
+# 2015 - 2019
+use_regress_b("binge_drink_f", paste("halluc_p", " + ", m2vars))
+
+# 2020 - 2022
+use_regress_a("binge_drink_f", paste("halluc_p", " + ", m2vars))
+```
+
+Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("binge_drink_f", paste("halluc_p", " + ", m3vars))
+
+# 2020 - 2022
+use_regress_a("binge_drink_f", paste("halluc_p", " + ", m3vars))
+
+```
+
+Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019 /2023* 
+
+```{r, eval = FALSE }
+
+# 2015 - 2019
+use_regress_b("binge_drink_f", paste("halluc_p", " + ", m1vars, " + ", policy19))
+
+# 2020 - 2022
+use_regress_a("binge_drink_f", paste("halluc_p", " + ", m1vars, " + ", policy23))
+```
 
 ## Non Prescribed Stimulant Use Disorder 
 (Methaphetamine + Cocaine)
@@ -665,10 +799,19 @@ tbl1_weighted(desg_,"cocmeth_use_f")
 
 ### Models
 
+(Classic Hallucinogens ~ Weighted)
+
+```{r}
+# 2015 - 2019
+use_regress_b("cocmeth_use_f", paste("halluc_p"))
+
+# 2020 - 2022
+use_regress_a("cocmeth_use_f", paste("halluc_p"))
+```
+
 Model 1
 
 ```{r}
-
 use_regress_b("cocmeth_use_f", paste("halluc_p", " + ", m1vars))
 use_regress_a("cocmeth_use_f", paste("halluc_p", " + ", m1vars))
 ```
@@ -713,7 +856,6 @@ use_regress_b("cocmeth_use_f", paste("halluc_p", " + ", m1vars, " + ", policy19)
 use_regress_a("cocmeth_use_f", paste("halluc_p", " + ", m1vars, " + ", policy23))
 ```
 
-
 ## Cannabis Use Disorder 
 
 ### Frequency Plot 
@@ -731,11 +873,18 @@ tbl1_weighted(desg_, "mrj_use_f")
 
 ### Models
 
+(Classic Hallucinogens ~ Weighted)
+
+```{r}
+# 2015 - 2019
+use_regress_b("mrj_use_f", paste("halluc_p"))
+# 2020 - 2022
+use_regress_a("mrj_use_f", paste("halluc_p"))
+```
 
 Model 1
 
 ```{r}
-
 use_regress_b("mrj_use_f", paste("halluc_p", " + ", m1varsmj))
 use_regress_a("mrj_use_f", paste("halluc_p", " + ", m1varsmj))
 ```
@@ -802,6 +951,8 @@ Past year stimulant use disorder
 Cannabis:	
   Past year use (MRJYR)
 	Past year cannabis use disorder (ABODMRJ and PYUD5MRJ)
+	
+** NEW ** Past month binge drinking	(BNGDRNKMON)
 
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
