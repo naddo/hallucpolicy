@@ -1,0 +1,114 @@
+---
+title: "NSDUH - Substance Use Review"
+output: html_document
+---
+
+```{r setup, include = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, tidy = TRUE)
+
+library(tidyverse)
+library(survey)
+library(gtsummary)
+```
+
+## Build Dataset and Review Outcomes 
+
+```{r}
+# source('PolicyDataset_U.R')
+source("PolicyLabels.R")
+``` 
+
+```{r}
+# temp <- readRDS("~/Library/CloudStorage/Box-Box/Emergency Medicine 2024/CUPS3_OUD/Temp022125.RDA")
+```
+
+```{r utils}
+# Variable Label Definitions file - to a source file
+halluc_epi_label  = 
+  list(
+        halluc_ever = "CUPS Hallucinogen Ever", 
+        hallucflag  = "NSDUH Hallucinogen Ever" , 
+        halluc_p    = "'Classic' Hallucinogen Ever",
+        psilcy_ever = "Psilocybin Ever", 
+        psilcy_only = "Only Psilocybin Use", 
+        new_psil = "New Psilocybin Use", 
+        pastyr_psil2 = "Past Year Psilocybin Use", 
+        pastyr_halluc = "Past Year Hallucinogen", 
+        pastyr_lsd = "Past Year LSD", 
+        pastyr_ecs = "Past Year Ecstasy"
+        )
+
+halluc_epi_list = attr(halluc_epi_label, "names")
+
+```
+
+
+Unweighted Counts 
+
+```{r, eval = FALSE}
+temp %>% group_by(year) %>% tally() 
+temp %>% select(year, halluc_ever) %>% table()
+temp %>% select(year, lsd_ever) %>% table()
+temp %>% select(year, ecstasy_ever) %>% table()
+temp %>% select(year, psilcy_ever) %>% table()
+temp %>% select(year, psilcy_only) %>% table() 
+
+temp %>% select(year, pcp_ever) %>% table()
+temp %>% select(year, salv_ever) %>% table()
+
+temp %>% select(year, mesc_ever) %>% table()
+temp %>% select(year, peyote_ever) %>% table()
+temp %>% select(year, nlhallucs_only) %>% table()
+
+# These 2 Variables Need a Note (Not included as variables before 2006)
+temp %>% select(year, ket_ever) %>% table() 
+temp %>% select(year, dmt_ever) %>% table() 
+
+temp %>% select(year,new_use) %>% table() 
+temp %>% select(year,new_lsd) %>% table() 
+temp %>% select(year,new_mdma) %>% table() 
+temp %>% select(year,new_psil) %>% table() 
+temp %>% select(year,new_nl_hallucs) %>% table() 
+
+temp %>% select(year, hallucly) %>% table()
+temp %>% select(year, pastyr_ecs) %>% table()
+temp %>% select(year, pastyr_psil2) %>% table()
+temp %>% select(year, pastyr_nls) %>% table()
+
+temp %>% select(year, age_cat) %>% table()
+temp %>% select(year, irsex) %>% table()
+temp %>% select(year, income) %>% table()
+temp %>% select(year, msa) %>% table()
+temp %>% select(year, ins_cat) %>% table()
+temp %>% select(year, eduhighcat) %>% table()
+```
+
+Hallucinogen Use 
+
+```{r}
+temp %>% 
+  tbl_summary(
+    include = any_of(halluc_epi_list[c(1:10)]),
+    label = c(halluc_epi_label),
+    by = year
+  ) %>% add_overall()
+```
+
+Demographics
+```{r}
+temp %>% 
+  select(age_cat,
+         irsex,
+         race_cat,
+         eduhighcat, 
+         curr_school, 
+         ins_cat,
+         income, 
+         msa, year, 
+         ) %>%  
+  tbl_summary(by = year , 
+              label = c(demo_var_list)
+              ) %>% 
+  add_overall() 
+```
+
