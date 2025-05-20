@@ -1,0 +1,541 @@
+---
+title: "Psilocybin Policy"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, tidy = TRUE)
+
+library(tidyverse)
+library(gtsummary)
+library(survey)
+```
+
+```{r}
+temp %>% select(year, halluc_ever) %>% table() # Missing
+
+temp %>% select(year, hallucly) %>% table() # Missing
+temp %>% select(year, psilcy2) %>% table()
+temp %>% select(year, lsd_ever) %>% table()
+temp %>% select(year, ecstasy_ever) %>% table()
+
+# All Missing
+temp %>% select(year, new_halluc) %>% table()
+temp %>% select(year, new_psilocybin) %>% table()
+temp %>% select(year, new_lsd) %>% table()
+temp %>% select(year, new_nl_halluc) %>% table()
+
+temp %>% select(year, lsdyr) %>% table()
+
+temp %>% select(year, age_cat) %>% table()
+temp %>% select(year, irsex) %>% table()
+temp %>% select(year, income) %>% table()
+temp %>% select(year, msa) %>% table()
+temp %>% select(year, ins_cat) %>% table() 
+temp %>% select(year, eduhighcat) %>% table()
+```
+
+```{r}
+temp <- readRDS("Temp020525.RDA")
+```
+
+
+```{r utils}
+# Variable Label Definitions file - to a source file
+halluc_epi_label  = 
+  list(
+        halluc_ever = "CUPS Hallucinogen Ever", 
+        hallucflag  = "NSDUH Hallucinogen Ever" , 
+        halluc_p    = "'Classic' Hallucinogen Ever",
+        psilcy_ever = "Psilocybin Ever", 
+        psilcy_only = "Only Psilocybin Use", 
+        new_psil = "New Psilocybin Use", 
+        pastyr_psil2 = "Past Year Psilocybin Use", 
+        pastyr_halluc = "Past Year Hallucinogen", 
+        pastyr_lsd = "Past Year LSD", 
+        pastyr_ecs = "Past Year Ecstasy"
+        )
+
+source("PolicyLabels.R")
+oud_epi_label = outcome_list_label 
+
+```
+
+```{r}
+temp %>%
+  tbl_summary(
+    include = all_of(halluc_epi_list[c(1:5, 7:10)]),
+    label = c(halluc_epi_label),
+    by = year) %>%
+    add_overall()
+
+```
+
+```{r}
+# Repeated Models
+# Tests Use" by year and binary decriminalization
+regress_0 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var,
+    "~ syear + psil2d_bin"))
+  glm(data = df, formula) %>%
+    tbl_regression(
+      estimate_fun = label_style_sigfig(digits = 4)
+  ) %>% modify_column_unhide(columns = std.error)
+}
+
+# Tests Past Year Psilocybin Use" by year and binary decriminalization
+# Adjusted - Age, Sex, Race + Educational Category + Insurance Category
+regress_1 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var, 
+  "~ syear + psil2d_bin + age_cat + irsex + race_cat + edu_cat + ins_cat + msa"))
+  glm(data = df, formula) %>%
+    tbl_regression(
+      estimate_fun = label_style_sigfig(digits = 3)
+  )
+}
+
+# Logistic regression for Use" by year and binary decriminalization
+regress_3 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var,
+  "~ syear + psil2d_bin"))
+  glm(data = df, formula, family = binomial) %>% 
+    tbl_regression(
+      exponentiate = TRUE,
+      estimate_fun = label_style_sigfig(digits = 4)
+  ) %>% modify_column_unhide(columns = std.error)
+}
+
+# Logistic regression for Past Year Psilocybin Use" by year and binary decriminalization
+# Adjusted - Age, Sex, Race + Educational Category + Insurance Category
+regress_4 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var,
+  "~ syear + psil2d_bin + age_cat + irsex + race_cat + edu_cat + ins_cat + msa"))
+  glm(data = df, formula, family = binomial) %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      estimate_fun = label_style_sigfig(digits = 3)
+  )
+}
+```
+
+```{r}
+# Tests Use" by year and binary decriminalization
+regress_wt0 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var, "~ syear + psil2d_bin"))
+  svyglm(data = df, formula, design = desg2_) %>%
+    tbl_regression(
+      estimate_fun = label_style_sigfig(digits = 4)
+  ) %>% modify_column_unhide(columns = std.error)
+}
+
+# Tests Past Year Psilocybin Use" by year and binary decriminalization
+# Adjusted - Age, Sex, Race + Educational Category + Insurance Category
+regress_wt1 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var, "~ 
+                              syear + psil2d_bin + age_cat + irsex + race_cat + edu_cat + ins_cat + msa"))
+  svyglm(data = df, formula, design = desg2_) %>%
+    tbl_regression(
+      estimate_fun = label_style_sigfig(digits = 3)
+  )
+}
+
+# Logistic regression for Use" by year and binary decriminalization
+regress_wt3 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var, "~ syear + psil2d_bin"))
+  svyglm(data = df, formula, family = quasibinomial, design = desg2_) %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      estimate_fun = label_style_sigfig(digits = 4)
+  ) %>% modify_column_unhide(columns = std.error)
+}
+
+# Logistic regression for Past Year Psilocybin Use" by year and binary decriminalization
+# Adjusted - Age, Sex, Race + Educational Category + Insurance Category
+regress_wt4 <- function(df, outcome_var) {
+  formula <- as.formula(paste(outcome_var,
+  "~ syear + psil2d_bin + age_cat + irsex + race_cat + edu_cat + ins_cat + msa"))
+  svyglm(data = df, formula, family = quasibinomial, design = desg2_) %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      estimate_fun = label_style_sigfig(digits = 3)
+  ) %>% modify_column_unhide(columns = std.error) %>%
+    add_overall() 
+}
+```
+
+*Definitions:*
+
+- Past Year Psilocybin:
+    1 - New past year psilocybin use was inferred by combining variables reporting first ever hallucinogen use occurring within the past year and any lifetime use of psilocybin. 
+    OR 
+    2 - Past year hallucinogen use among people reporting no hallucinogen use other than psilocybin    
+- New psilocybin use within the past year among previously hallucinogen-naïve participants and ii) lifetime psilocybin use. Control outcomes include past year MDMA and past year LSD use. 
+
+- Decriminalization:
+    Binary : Any Psilocyvin decrim in the
+      2019  - on or after Jan 1, 2018  
+      2020  - on or after Jan 1, 2019
+      2021  - on or after Jan 1, 2020
+      2022  - on or after Jan 1, 2021
+      2023  - on or after Jan 1, 2022
+      2024  - on or after Jan 1, 2023
+
+```{r import, include = FALSE, warning = FALSE}
+temp %>% group_by(year) %>% tally()
+```
+
+### Unweighted Substance Use in the Sample
+
+Substance use Rates by Year (2013 - 2022)
+
+```{r}
+halluc_epi_list = attr(halluc_epi_label, "names")
+
+temp %>% 
+  tbl_summary(
+    include = any_of(halluc_epi_list[c(1:5,7:9)]),
+    label = c(halluc_epi_label),
+    by = year
+  ) %>% add_overall()
+```
+
+```{r}
+mj_decriminalization = state_cannabis %>%
+  filter(decriminalization == 1) %>%
+  pull(st)
+
+psilocybin_policy_ <- psilocybin_policy %>%
+  mutate(
+    fips_2 = str_sub(fips_5, 1, 2),
+    effective_date = ymd(effective_date)
+  )
+
+psilocybin_policy2 <- psilocybin_policy %>%
+  group_by(State, fips_2) %>% 
+  summarise(effective = min(effective_date)) %>%
+  ungroup() %>%
+  mutate(psil_effective_year = year(effective))
+```
+
+```{r}
+tmp2 = temp %>%
+  # County Var
+  # Use when State and County Available
+  left_join(psilocybin_policy_ , by = c("fips5" = "STCTYCOD")) %>%
+  # Use if only State Available
+  # left_join(psilocybin_policy2, by = c("fips2" = "STUSABFIPS")) %>%
+  mutate(
+        # Assign Decriminalization Marijuana
+        mjstate = if_else(state %in% mj_decriminalization, 1, 0),
+        # Assign Decriminalization Psilocybin
+        psil2d_bin = if_else(year >= psil_effective_year, 1, 0 , missing = 0),
+         decriminalization = case_when(
+          psil_effective_year <= 2019 ~ "Decrim 0",
+          psil_effective_year <= 2020 ~ "Decrim 1",
+          psil_effective_year <= 2021 ~ "Decrim 2",
+          psil_effective_year <= 2022 ~ "Decrim 3",
+          TRUE ~ "No Decrim"
+        )) %>% filter(!is.na(catag6))
+```
+
+### Unweighted substance use vs decriminalization in Adults
+
+<!--  Map Policy  -->
+<!--  Map Psilocybin Substance Use  -->
+  <!-- Hallucinogen Ever -->
+  <!-- Psilocybin Ever -->
+  <!-- Psilocybin in the last year -->
+  <!-- OUD in the last year -->
+
+```{r}
+# dirtoken = ".../CUPS Population Study/NSDUH Data/Documentation/" 
+# import1 <- sf::read_sf(str_c(dirtoken,"/Restricted Use Data/ShapeFile2018/SubstateRegionData161718.shp"))
+
+# Continental  = import1[!import1$ST %in% c("AK","HI","PR"),]
+
+# ggplot(Continental) +
+# geom_sf(aes(fill = UDPYILA)) +
+#   scale_colour_viridis_b(aesthetics = "fill", option ="viridis",direction = -1)+
+#   theme_void() + labs(title = "Illicit Drug Use Disorder 2016-18")
+
+# ggplot(Continental) +
+# geom_sf(aes(fill = UDPYPNR)) +
+#   scale_colour_viridis_b(aesthetics = "fill", option ="viridis",direction = -1)+
+#   theme_void() + labs(title = "Pain Reliever Use Disorder 2016-18")
+
+# ggplot(Continental) +
+# geom_sf(aes(fill = ABODALC)) +
+#   scale_colour_viridis_b(aesthetics = "fill", option ="viridis",direction = -1)+
+#   theme_void() + labs(title = "Alcohol Use Disorder 2016-18")
+
+# ggplot(Continental) +
+# geom_sf(aes(fill = HERYR)) +
+#   scale_colour_viridis_b(aesthetics = "fill", option ="viridis",direction = -1)+
+#   theme_void() + labs(title = "Heroin use in the last year 2016-18")
+
+# ggplot(Continental) +
+# geom_sf(aes(fill = NEW_VARIABLE)) +
+#   scale_colour_viridis_b(aesthetics = "fill", option ="viridis",direction = -1)+
+#   theme_void() + labs(title = "New Variable Title")
+
+```
+
+### Test Decriminalization Variables 
+
+- Compares Ever Decriminalization ever to Decrim by Calendar Year
+```{r, eval =FALSE}
+tmp2 %>% group_by(psil2d_bin) %>% tally()
+```
+
+- Compares Categorical Decriminalization against Calendar Year
+```{r, eval =FALSE}
+tmp2 %>% select(year, decriminalization) %>% table()
+```
+
+- Compares Ever Decriminalization to Categorical Decriminalization
+```{r, eval =FALSE}
+tmp2 %>% select(decriminalization, psil2d_bin) %>% table()
+```
+
+- Compares Ever Decrim by Calendar year to Categorical Decriminalization 
+```{r, eval =FALSE}
+tmp2 %>% select(decriminalization, psil2d_bin) %>% table()
+```
+
+### Weighted Data Structure
+```{r}
+# Weighted Set of Adult Respondents
+# desg2_ <- desg_ %>% subset(!CATAG6=="")
+
+tmp2 %>% droplevels() %>% haven::zap_labels() %>%
+  svydesign(id      = ~verep,
+            strata  = ~vestr_,
+            weights = ~psnwt,
+            data    = ., nest = T) -> desg2_
+```
+
+## Policy Manuscript Tables 
+
+## Table 1. 
+
+```{r, eval = FALSE}
+tmp2 %>%
+  select(age_cat,
+         irsex,
+         race_cat,
+         edu_cat,
+         currschool,
+         ins_cat,
+         income,
+         msa, year
+         ) %>%
+  tbl_summary(by = year) %>% add_overall()
+```
+
+```{r, eval = FALSE}
+tmp2 %>%
+  select(age_cat,
+         irsex,
+         race_cat,
+         edu_cat,
+         currschool,
+         ins_cat,
+         income,
+         msa, year, psil2d_bin
+         ) %>%
+  tbl_summary(by = psil2d_bin,
+              label = list(
+              age_cat = "Age Category",
+              irsex = "Sex",
+              edu_cat = "Education",
+              ins_cat = "Insurance",
+              income = "Income"
+              ) %>%
+  add_overall() %>%
+  modify_header(label = "Variable",
+              stat_0 = '**Overall**,\n N = {style_number(n, big.mark = ",")})',
+              stat_1 = '**No local policy change**,\n
+              N = {style_number(n, big.mark = ",")} ({style_percent(p)} )%',
+              stat_2 = '**Decriminalized**,\n
+              N = {style_number(n, big.mark = ",")} ({style_percent(p)} )%' )
+```
+
+Weighted Rates 
+
+```{r, eval = FALSE}
+desg2_ %>%
+  tbl_svysummary(
+    include = c(
+      age_cat,
+      irsex,
+      race_cat,
+      edu_cat,
+      currschool,
+      ins_cat,
+      income,
+      msa, year),
+    by = year ) %>% add_overall()
+```
+
+```{r}
+desg2_ %>% 
+  tbl_svysummary(
+    include = c(
+      age_cat,
+      irsex,
+      race_cat,
+      edu_cat,
+      currschool,
+      ins_cat,
+      income,
+      msa, year, psil2d_bin
+    ),
+    by = psil2d_bin,
+    label = list(
+    age_cat = "Age Category",
+    irsex = "Sex",
+    ins_cat = "Insurance",
+    edu_cat = "Education",
+    income = "Income"
+              )
+              ) %>% add_overall() %>%
+  modify_header(
+    label = "Variable",
+    stat_0 = '**Overall**,\n N = {style_number(n, big.mark = ",")})', 
+    stat_1 = '**No local policy change**,\n N = {style_number(n, big.mark = ",")} ({style_percent(p)} )%',
+    stat_2 = '**Decriminalized**,\n  N = {style_number(n, big.mark = ",")} ({style_percent(p)} )%' 
+    )
+```
+
+## Figure 1. 
+
+```{r}
+# Separate Figure Data and Plot
+
+# Weight 
+tmp2 %>% group_by(year, decriminalization) %>%
+  summarize(rate_pastyrpsil = 100 * mean(pastyr_psil2), .groups = "keep") %>%
+  mutate(Year = as.numeric(paste0(year)), `Past Year Psilocybin` = rate_pastyrpsil,
+         decriminalization = fct_recode(decriminalization,
+                                        `No Decrim` = "No Decrim",
+                                        `Decrim 2019` = "Decrim 0",
+                                        `Decrim 2020` = "Decrim 1",
+                                        `Decrim 2021` = "Decrim 2",
+                                        `Decrim 2022` = "Decrim 3"
+                                        )) %>%
+  ggplot(., aes(x = Year, y = `Past Year Psilocybin` , color=decriminalization)) +
+    geom_line() + geom_point() +
+    scale_y_continuous(limits = c(0.0,1.6), n.breaks = 12) +
+    scale_x_continuous(n.breaks = 11) + theme_classic() + labs(color= "")
+```
+
+## Table 2.
+
+### Unweighted - Overall
+
+```{r}
+tmp2 %>% regress_0("pastyr_psil2")
+tmp2 %>% regress_1("pastyr_psil2")
+tmp2 %>% regress_3("pastyr_psil2")
+tmp2 %>% regress_4("pastyr_psil2")
+```
+
+### Weighted - Overall
+
+```{r}
+tmp2 %>% regress_wt0("pastyr_psil2")
+tmp2 %>% regress_wt1("pastyr_psil2")
+tmp2 %>% regress_wt3("pastyr_psil2")
+tmp2 %>% regress_wt4("pastyr_psil2")
+```
+
+### Unweighted - Non-MJ States
+
+```{r, eval = FALSE }
+tmp2 %>% filter(mjstate == 0) %>% regress_0("pastyr_psil2")
+tmp2 %>% filter(mjstate == 0) %>% regress_1("pastyr_psil2")
+tmp2 %>% filter(mjstate == 0) %>% regress_3("pastyr_psil2")
+tmp2 %>% filter(mjstate == 0) %>% regress_4("pastyr_psil2")
+```
+
+### Weighted - Non-MJ States
+
+```{r, eval = FALSE}
+tmp2 %>% filter(mjstate == 0) %>% regress_wt0("pastyr_psil2")
+tmp2 %>% filter(mjstate == 0) %>% regress_wt1("pastyr_psil2")
+tmp2 %>% filter(mjstate == 0) %>% regress_wt3("pastyr_psil2")
+tmp2 %>% filter(mjstate == 0) %>% regress_wt4("pastyr_psil2")
+```
+
+### Unweighted - MJ States
+
+```{r}
+tmp2 %>% filter(mjstate == 1) %>% regress_0("pastyr_psil2")
+tmp2 %>% filter(mjstate == 1) %>% regress_1("pastyr_psil2")
+tmp2 %>% filter(mjstate == 1) %>% regress_3("pastyr_psil2")
+tmp2 %>% filter(mjstate == 1) %>% regress_4("pastyr_psil2")
+```
+
+### Weighted - MJ States
+
+```{r}
+tmp2 %>% filter(mjstate == 1) %>% regress_wt0("pastyr_psil2")
+tmp2 %>% filter(mjstate == 1) %>% regress_wt1("pastyr_psil2")
+tmp2 %>% filter(mjstate == 1) %>% regress_wt3("pastyr_psil2")
+tmp2 %>% filter(mjstate == 1) %>% regress_wt4("pastyr_psil2")
+```
+
+
+## Additional Variables 
+
+```{r}
+# For each variable, repeat the analyses
+
+# PastYr HallucinogenUse
+# PastYr LSD
+# PastYr Mdma Use 
+  
+for (outcome_var in c("hallucly", "pastyr_lsd", "pastyr_ecs")) {
+  cat("\n## Results for", outcome_var, "\n")
+  
+  # Unweighted - Overall
+  tmp2 %>% regress_0(outcome_var)
+  tmp2 %>% regress_1(outcome_var)
+  tmp2 %>% regress_3(outcome_var)
+  tmp2 %>% regress_4(outcome_var)
+  
+  # Weighted - Overall
+  tmp2 %>% regress_wt0(outcome_var)
+  tmp2 %>% regress_wt1(outcome_var)
+  tmp2 %>% regress_wt3(outcome_var)
+  tmp2 %>% regress_wt4(outcome_var)
+  
+  # Unweighted - Non-MJ States
+  tmp2 %>% filter(mjstate == 0) %>% regress_0(outcome_var)
+  tmp2 %>% filter(mjstate == 0) %>% regress_1(outcome_var)
+  tmp2 %>% filter(mjstate == 0) %>% regress_3(outcome_var)
+  tmp2 %>% filter(mjstate == 0) %>% regress_4(outcome_var)
+  
+  # Weighted - Non-MJ States
+  tmp2 %>% filter(mjstate == 0) %>% regress_wt0(outcome_var)
+  tmp2 %>% filter(mjstate == 0) %>% regress_wt1(outcome_var)
+  tmp2 %>% filter(mjstate == 0) %>% regress_wt3(outcome_var)
+  tmp2 %>% filter(mjstate == 0) %>% regress_wt4(outcome_var)
+  
+  # Unweighted - MJ States
+  tmp2 %>% filter(mjstate == 1) %>% regress_0(outcome_var)
+  tmp2 %>% filter(mjstate == 1) %>% regress_1(outcome_var)
+  tmp2 %>% filter(mjstate == 1) %>% regress_3(outcome_var)
+  tmp2 %>% filter(mjstate == 1) %>% regress_4(outcome_var)
+  
+  # Weighted - MJ States
+  tmp2 %>% filter(mjstate == 1) %>% regress_wt0(outcome_var)
+  tmp2 %>% filter(mjstate == 1) %>% regress_wt1(outcome_var)
+  tmp2 %>% filter(mjstate == 1) %>% regress_wt3(outcome_var)
+  tmp2 %>% filter(mjstate == 1) %>% regress_wt4(outcome_var)
+}
+
+```
+

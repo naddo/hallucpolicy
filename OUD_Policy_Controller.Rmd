@@ -1,0 +1,278 @@
+---
+title: "NSDUH Outcome Reports"
+author: '@naddo'
+date: !r Sys.Date()
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(gtsummary)
+library(survey)
+
+temp <- readRDS("~/Library/CloudStorage/Box-Box/Emergency Medicine 2024/CUPS3_OUD/Temp020525.RDA")
+source("02_tools.R")
+source("PolicyLabels.R")
+```
+
+```{r}
+temp2 <- temp %>% haven::zap_labels() 
+
+# Adds Simulated Region !!! NOT FOR USE!!! 
+df <- tibble(region_1 = 1:4)
+region_d <- sample_n(df, length(temp2$year), replace = TRUE)
+
+temp2 <- bind_cols(temp2, region_d) %>% 
+  mutate(
+    race_cat = factor(race_cat) %>% fct_relevel(.,"NH White", after = 0L)
+    )
+
+
+grp_ <- temp2  %>% filter(!catag6=="") %>% filter(!year == 2020) %>% droplevels() %>% 
+  mutate(
+    race_cat = factor(race_cat) %>% fct_relevel(.,"NH White", after = 0L)
+    )
+
+grp1 <- temp2 %>% filter(year > 2020) %>% filter(!catag6 == "")
+grp2 <- temp2 %>% filter(year < 2020) %>% filter(!catag6 == "")
+
+desg_ <-
+  temp2 %>% haven::zap_labels() %>% filter(!catag6 == "") %>% droplevels() %>%
+  svydesign(id      = ~verep,
+            strata  = ~vestr_,
+            weights = ~psnwt,
+            data    = . , nest = T)
+
+
+desg_1 <-
+  temp2 %>% haven::zap_labels() %>% filter(!catag6 == "") %>% filter(year < 2020) %>%  droplevels()  %>%
+  svydesign(id      = ~verep,
+            strata  = ~vestr_,
+            weights = ~psnwt,
+            data    = . , nest = T)
+
+
+desg_2 <-
+  temp2 %>% haven::zap_labels() %>% filter(!catag6 == "") %>% filter(year > 2020) %>% droplevels() %>%
+  svydesign(id      = ~verep,
+            strata  = ~vestr_,
+            weights = ~psnwt,
+            data    = . , nest = T)
+
+# Prepare survey design if needed
+desg_ <- svydesign(
+  id = ~verep,
+  strata = ~vestr_,
+  weights = ~psnwt,
+  data = temp,
+  nest = TRUE
+)
+
+substance_list <- c("halluc_p", "lsd_ever", "psilcy_ever", "ecstasy_ever", "ket_ever", "pcp_ever", "mesc_ever","peyote_ever","dmt_ever", "salv_ever","mj_ever", "coc_ever", "meth_ever", "stm_ever", "trq_ever", "inh_ever", "sed_ever", "herflag", "pnranyflag", "any_opi")
+
+reference_summary <- function(data) {
+  data %>%
+  tbl_summary(
+    include = all_of(substance_list),
+    percent = "column",
+    by = "year",
+    label = c(outcome_list_label, substance_list_label)
+  )
+}
+```
+
+##  Reference Summary 
+
+```{r}
+reference_summary(temp2)
+```
+
+## Opioid Use Disorder 
+
+```{r}
+params = list(outcome = "opioid_use_f", outcome_label = "Opioid Use Disorder")
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  opioid_use_f,
+                    outcome_label = "Opioid Use Disorder",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Opioid Use Disorder"
+                      ),
+                    output_file = "01ReportOUD.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Opioid Use Disorder\"")),
+                    clean = TRUE
+                  )
+```
+
+## Other Past Year Substance Use 
+
+### Past Year Cannabis Use    
+
+```{r}
+params = list(outcome =  "mrjyr", outcome_label = "Past Year Cannabis Use")
+
+rmarkdown::render("03ReportMJV.Rmd",
+                  params = list(
+                    outcome =  mrjyr,
+                    outcome_label = "Past Year Cannabis Use",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Cannabis Use"
+                      ),
+                    output_file = "02ReportCannabis.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Past Year Cannabis Use\"")),
+                    clean = TRUE
+)
+```
+
+### Past Year Ketamine Use   
+```{r}
+params = list(outcome = "ketminyr", outcome_label = "Past Year Ketamine Use")
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  ketminyr,
+                    outcome_label = "Past Year Ketamine Use",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Ketamine Use"
+                      ),
+                    output_file = "03ReportKetamine.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(pandoc_args = c("--metadata = title:\"Past Year Ketamine Use\"")),
+                    clean = TRUE
+)
+```
+
+### Past Year MDMA Use    
+```{r}
+params = list(outcome = "ecstmoyr", outcome_label = "Past Year MDMA Use")
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  ecstmoyr,
+                    outcome_label = "Past Year MDMA Use"
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year MDMA Use"
+                    ),
+                    output_file = "04ReportMDMA.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Past Year MDMA Use\"")
+                    ),
+                    clean = TRUE
+                  )
+```
+
+### Past Year Non Prescribed Stimulant Use
+```{r}
+params = list(outcome = "py_cocmeth", outcome_label = "Past Year Non Prescribed Stimulant Use")
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  py_cocmeth,
+                    outcome_label = "Past Year Non Prescribed Stimulant Use",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Non Prescribed Stimulant Use"
+                    ),
+                    output_file = "05ReportStim.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Past Year Non Prescribed Stimulant Use\"")
+                    ),
+                    clean = TRUE
+)
+```
+
+## Other Past Year Use Disorders 
+
+### Alcohol Use Disorder    
+```{r}
+params = list(outcome =  "alc_use_f", outcome_label = "Alcohol Use Disorder" )
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  alc_use_f,
+                    outcome_label = "Alcohol Use Disorder",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Alcohol Use Disorder"
+                    ),
+                    output_file = "06ReportAUD.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Alcohol Use Disorder\"")),
+                    clean = TRUE
+)
+```
+
+### Binge Alcohol use past 30 days
+```{r}
+params = list(outcome =  "binge_drink_f", outcome_label = "Binge Alcohol Use past 30 days" )
+
+rmarkdown::render("01_ReportOUD.Rmd", 
+                  params = list(
+                    outcome =  binge_drink_f,
+                    outcome_label = "Binge Alcohol Use past 30 days",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Binge Alcohol Use past 30 days"
+                    ),
+                    output_file = "07ReportBingeAlc.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Binge Alcohol Use past 30 days\"")
+                    ),
+                    clean = TRUE
+)
+```
+
+### Non Prescribed Stimulant Use Disorder 
+```{r}
+params = list(outcome = "cocmeth_use_f", outcome_label = "Past Year Non Prescribed Stimulant Use Disorder")
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  cocmeth_use_f,
+                    outcome_label = "Past Year Non Prescribed Stimulant Use Disorder",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Non Prescribed Stimulant Use Disorder"
+                      ),
+                    output_file = "08ReportStmUD.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Past Year Non Prescribed Stimulant Use Disorder\"")
+                      ),
+                    clean = TRUE
+)
+```
+
+### Cannabis Use Disorder
+```{r}
+params = list(outcome = "mrj_use_f", outcome_label = "Past Year Cannabis Use Disorder")
+
+rmarkdown::render("03ReportMJV.Rmd",
+                  params = list(
+                    outcome =  mrj_use_f,
+                    outcome_label = "Past Year Cannabis Use Disorder",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Cannabis Use Disorder"
+                      ),
+                    output_file = "09ReportCUD.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(pandoc_args = c("--metadata=title:\"Past Year Cannabis Use Disorder\"")),
+                    clean = TRUE
+)
+```

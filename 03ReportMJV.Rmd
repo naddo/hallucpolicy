@@ -1,0 +1,131 @@
+---
+title: ""
+output: html_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(gtsummary)
+library(survey)
+
+# temp <- readRDS("Temp020525.RDA")
+```
+
+# `r params$outcome_label`
+
+## Frequency Plot 
+
+```{r}
+generate_plot(temp2, params$outcome, params$outcome_label)
+```
+
+## Demographics Table (Unweighted)
+
+```{r}
+tbl1_unweighted(temp, params$outcome)
+```
+
+## Demographics Table (Weighted)
+
+```{r message = TRUE, warning=TRUE, eval = F}
+tbl1_weighted(desg_, params$outcome)
+```
+
+2015 - 2019
+
+```{r message = TRUE, warning=TRUE}
+tbl1_weighted_alt(desg_1, params$outcome)
+```
+
+2021 - 2023
+
+```{r message = TRUE, warning=TRUE}
+tbl1_weighted_alt(desg_2, params$outcome)
+```
+
+
+### Frequency Plot 
+
+```{r}
+generate_plot(temp2, params$outcome, params$outcome_label)
+```
+
+### Demographics by Cannabis Use Disorder
+
+```{r}
+tbl1_unweighted(grp_, params$outcome)
+tbl1_weighted(desg_, params$outcome)
+```
+
+## Model 0
+
+(Classic Hallucinogens ~ Weighted)
+
+### 2015 - 2019 
+```{r}
+# 2015 - 2019
+use_regress_b(params$outcome, paste("halluc_p"))
+```
+
+### 2021 - 2023
+```{r}
+# 2021 - 2023
+use_regress_a(params$outcome, paste("halluc_p"))
+```
+
+## Model 1
+
+```{r}
+use_regress_b(params$outcome, paste("halluc_p", " + ", m1varsmj))
+use_regress_a(params$outcome, paste("halluc_p", " + ", m1varsmj))
+```
+
+## Model 2 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Difficulty Obtaining* 
+
+### 2015 - 2019 
+```{r}
+# 2015 - 2019
+use_regress_b(params$outcome, paste("halluc_p", " + ", m2varsmj))
+```
+
+### 2021 - 2023 
+```{r}
+# 2021 - 2023
+use_regress_a(params$outcome, paste("halluc_p", " + ", m2varsmj))
+```
+
+## Model 3 
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Geo Region* 
+
+### 2015 - 2019
+```{r, eval = FALSE }
+# 2015 - 2019
+use_regress_b(params$outcome, paste("halluc_p", " + ", m3varsmj))
+```
+
+### 2021 - 2023 
+```{r, eval = FALSE }
+# 2021 - 2023
+use_regress_a(params$outcome, paste("halluc_p", " + ", m3varsmj))
+```
+
+## Model 4
+
+*Control Vars: Age, Sex Income, Race, Education, Employment, RiskyBehav , Lifetime Drug Use + Policy 2019/2023* 
+
+### 2015 - 2019
+```{r, eval = FALSE}
+# 2015 - 2019
+use_regress_b(params$outcome, paste("halluc_p", " + ", m1varsmj, " + ", policy19))
+```
+
+### 2021 - 2023 
+```{r, eval = FALSE}
+# 2021 - 2023
+use_regress_a(params$outcome, paste("halluc_p", " + ", m1varsmj, " + ", policy23))
+```
