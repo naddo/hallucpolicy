@@ -173,6 +173,49 @@ rmarkdown::render("01_ReportOUD.Rmd",
                   )
 ```
 
+### Past Year Cocaine Use
+```{r}
+params = list(outcome = "cocyr", outcome_label = "Past Year Cocaine Use")
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  py,
+                    outcome_label = "Past Year Cocaine Use",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Cocaine Use"
+                    ),
+                    output_file = "11ReportCocaine.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Past Year Non Prescribed Stimulant Use\"")
+                    ),
+                    clean = TRUE
+)
+```
+
+### Past Year Methamphetamine Use
+```{r}
+params = list(outcome = "methamyr", outcome_label = "Past Year Methamphetamine Use")
+
+rmarkdown::render("01_ReportOUD.Rmd",
+                  params = list(
+                    outcome =  py,
+                    outcome_label = "Past Year Methamphetamine Use",
+                    ),
+                    output_format = rmarkdown::html_document(
+                      title = "Past Year Methamphetamine Use"
+                    ),
+                    output_file = "10ReportMeth.html",
+                    output_dir = "OUD and Hallucinogen Reports/",
+                    output_options = list(
+                      pandoc_args = c("--metadata=title:\"Past Year Non Prescribed Stimulant Use\"")
+                    ),
+                    clean = TRUE
+)
+```
+
+
 ### Past Year Non Prescribed Stimulant Use
 ```{r}
 params = list(outcome = "py_cocmeth", outcome_label = "Past Year Non Prescribed Stimulant Use")
